@@ -61,7 +61,7 @@ cp .env.example .env
 docker compose up -d
 ```
 
-[`compose.yaml`](https://github.com/hypercat-net/heatmiser-exporter/blob/main/compose.yaml)
+[`docker-compose.yml`](https://github.com/hypercat-net/heatmiser-exporter/blob/main/docker-compose.yml)
 publishes port `9780`, loads `.env`, and restarts unless stopped.
 
 ## Prometheus

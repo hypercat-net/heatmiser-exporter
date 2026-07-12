@@ -31,7 +31,7 @@ htmlcov
 .gitattributes
 Dockerfile
 .dockerignore
-compose.yaml
+docker-compose.yml
 *.md
 !README.md
 !LICENSE

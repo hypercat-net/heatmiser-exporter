@@ -4,13 +4,11 @@
 services:
   heatmiser-exporter:
     image: hypercat42/heatmiser-exporter:latest
-    build: .
     container_name: heatmiser-exporter
     restart: unless-stopped
-    env_file:
-      - .env
+    env_file: .env
     ports:
-      - "9780:9780"
+      - "9780:9780" # metrics: http://localhost:9780/metrics
     # Prefer bridge networking + explicit NEOHUB_HOST.
     # Use host networking only if you later rely on LAN UDP discovery:
     # network_mode: host
