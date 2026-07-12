@@ -1,9 +1,9 @@
 # heatmiser-exporter
 
-[![CI](https://github.com/hypercat-net/heatmiser-exporter/actions/workflows/tests.yml/badge.svg)](https://github.com/hypercat-net/heatmiser-exporter/actions/workflows/tests.yml) [![Docs](https://github.com/hypercat-net/heatmiser-exporter/actions/workflows/docs.yml/badge.svg)](https://github.com/hypercat-net/heatmiser-exporter/actions/workflows/docs.yml) [![License](https://img.shields.io/github/license/hypercat-net/heatmiser-exporter)](https://github.com/hypercat-net/heatmiser-exporter/blob/main/LICENSE) [![Docker](https://img.shields.io/docker/v/hypercat42/heatmiser-exporter?label=docker)](https://hub.docker.com/r/hypercat42/heatmiser-exporter)
+[![CI](https://github.com/hypercat-net/heatmiser-exporter/actions/workflows/tests.yaml/badge.svg)](https://github.com/hypercat-net/heatmiser-exporter/actions/workflows/tests.yaml) [![Pages](https://github.com/hypercat-net/heatmiser-exporter/actions/workflows/pages.yaml/badge.svg)](https://github.com/hypercat-net/heatmiser-exporter/actions/workflows/pages.yaml) [![License](https://img.shields.io/github/license/hypercat-net/heatmiser-exporter)](https://github.com/hypercat-net/heatmiser-exporter/blob/main/LICENSE) [![Docker](https://img.shields.io/docker/v/hypercat42/heatmiser-exporter?label=docker)](https://hub.docker.com/r/hypercat42/heatmiser-exporter)
 
 Prometheus exporter for the [IMI Heatmiser NeoHub](https://www.heatmiser.com/neohub-smart-control/),
-built on [`heatmiser-neohub`](https://github.com/hypercat-net/heatmiser-neohub).
+built on [`heatmiser-neohub`](https://pypi.org/project/heatmiser-neohub/).
 
 [![BuyMeACoffee](https://raw.githubusercontent.com/barcar/buymeacoffee-badges/main/bmc-donate-white.svg)](https://buymeacoffee.com/barcar)
 
@@ -18,12 +18,9 @@ Published docs (GitHub Pages):
 
 ## Installation
 
-Until `heatmiser-neohub` is on PyPI, install the library from GitHub, then this
-package:
-
 ```bash
-pip install "heatmiser-neohub @ git+https://github.com/hypercat-net/heatmiser-neohub@v0.1.0"
 pip install .
+# pulls heatmiser-neohub from PyPI automatically
 ```
 
 For local development against a sibling checkout of `heatmiser-neohub`, use
@@ -44,7 +41,9 @@ pip install -e ".[dev]"
 ### Docker
 
 Multi-arch image (`linux/amd64`, `linux/arm64`) on Docker Hub as
-[`hypercat42/heatmiser-exporter`](https://hub.docker.com/r/hypercat42/heatmiser-exporter):
+[`hypercat42/heatmiser-exporter`](https://hub.docker.com/r/hypercat42/heatmiser-exporter).
+The image is built from this repository; `heatmiser-neohub` is installed from
+PyPI as a dependency.
 
 ```bash
 cp .env.example .env   # set NEOHUB_HOST and NEOHUB_TOKEN
@@ -116,6 +115,7 @@ scrape_configs:
 
 ## Related links
 
+- [heatmiser-neohub on PyPI](https://pypi.org/project/heatmiser-neohub/)
 - [heatmiser-neohub](https://github.com/hypercat-net/heatmiser-neohub) (client library + CLI)
 - [neoHub smart control](https://www.heatmiser.com/neohub-smart-control/)
 - [IMI Heatmiser Developer Portal](https://dev.heatmiser.com/)
@@ -123,7 +123,6 @@ scrape_configs:
 ## Development
 
 ```bash
-pip install -e ../heatmiser-neohub
 pip install -e ".[dev]"
 pytest
 ```

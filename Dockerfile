@@ -1,20 +1,11 @@
 # syntax=docker/dockerfile:1
-
-ARG NEOHUB_REF=v0.1.0
+#
+# Build the exporter from this repository. heatmiser-neohub is installed from
+# PyPI as a normal dependency (not from git).
 
 FROM python:3.13-slim AS build
 
-ARG NEOHUB_REF
-
 WORKDIR /app
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends git \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install the client library from GitHub until it is on PyPI.
-RUN pip install --no-cache-dir --prefix=/install \
-    "heatmiser-neohub @ git+https://github.com/hypercat-net/heatmiser-neohub@${NEOHUB_REF}"
 
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src

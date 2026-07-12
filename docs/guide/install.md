@@ -1,11 +1,13 @@
 # Install
 
-## pip (until PyPI)
+## pip
 
 ```bash
-pip install "heatmiser-neohub @ git+https://github.com/hypercat-net/heatmiser-neohub@v0.1.0"
 pip install .
+# installs heatmiser-neohub from PyPI as a dependency
 ```
+
+See also [heatmiser-neohub on PyPI](https://pypi.org/project/heatmiser-neohub/).
 
 ## Local development
 
@@ -45,7 +47,8 @@ heatmiser-exporter
 ## Docker
 
 Image: [`hypercat42/heatmiser-exporter`](https://hub.docker.com/r/hypercat42/heatmiser-exporter)
-(`linux/amd64`, `linux/arm64`).
+(`linux/amd64`, `linux/arm64`). Built from this repo; `heatmiser-neohub` comes
+from PyPI.
 
 ```bash
 docker run --rm -p 9780:9780 --env-file .env hypercat42/heatmiser-exporter

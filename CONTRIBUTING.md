@@ -7,17 +7,16 @@ Thanks for contributing to **heatmiser-exporter**.
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-# Until heatmiser-neohub is on PyPI:
-pip install "heatmiser-neohub @ git+https://github.com/hypercat-net/heatmiser-neohub@v0.1.0"
 pip install -e ".[dev]"
 cp .env.example .env   # set NEOHUB_HOST and NEOHUB_TOKEN
 ```
 
-If you have a sibling checkout of `heatmiser-neohub`, prefer:
+For a sibling checkout of `heatmiser-neohub`:
 
 ```bash
 pip install -e ../heatmiser-neohub
 pip install -e ".[dev]"
+# or: uv sync --extra dev
 ```
 
 ## Checks before opening a PR
@@ -31,6 +30,16 @@ pytest
 - Keep changes focused and describe *why* in the PR body.
 - Prefer small PRs over large mixed ones.
 - Do not commit secrets (`.env`, tokens, hub credentials).
+
+## Releases (Docker)
+
+1. Bump `version` in `pyproject.toml` (and `__version__` if present) to `X.Y.Z`.
+2. Commit, push `main`, then tag and push `vX.Y.Z`.
+
+Tagged Docker publishes (`hypercat42/heatmiser-exporter:vX.Y.Z`) re-run Tests
+first. Docker `latest` / SHA builds on `main` do not wait on that gate.
+The image builds this repo from source and installs `heatmiser-neohub` from
+PyPI.
 
 ## Reporting issues
 

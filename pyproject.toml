@@ -11,7 +11,7 @@ requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Hypercat", email = "github@hypercat.net" }]
 dependencies = [
-    "heatmiser-neohub>=0.1.0",
+    "heatmiser-neohub>=0.1.1",
     "prometheus_client>=0.25.0",
     "python-dotenv>=1.2.0",
     "typer>=0.26.0",
@@ -32,8 +32,7 @@ Documentation = "https://hypercat-net.github.io/heatmiser-exporter/"
 Repository = "https://github.com/hypercat-net/heatmiser-exporter"
 Issues = "https://github.com/hypercat-net/heatmiser-exporter/issues"
 
-# Local sibling checkout for development with uv. Docker/CI install the
-# library from GitHub until it is published to PyPI.
+# Optional: local sibling checkout for development with uv.
 [tool.uv.sources]
 heatmiser-neohub = { path = "../heatmiser-neohub", editable = true }
 

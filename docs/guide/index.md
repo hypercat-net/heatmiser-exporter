@@ -24,5 +24,6 @@ curl -s http://localhost:9780/metrics | head
 
 - [GitHub repository](https://github.com/hypercat-net/heatmiser-exporter)
 - [Docker Hub](https://hub.docker.com/r/hypercat42/heatmiser-exporter)
+- [heatmiser-neohub on PyPI](https://pypi.org/project/heatmiser-neohub/)
 - [heatmiser-neohub docs](https://hypercat-net.github.io/heatmiser-neohub/)
 - [IMI Heatmiser Developer Portal](https://dev.heatmiser.com/)
