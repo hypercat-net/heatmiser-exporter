@@ -2,8 +2,8 @@
 
 ## pip
 
-Requires [`heatmiser-neohub`](https://pypi.org/project/heatmiser-neohub/) **0.1.3 or newer**
-(declared as `heatmiser-neohub>=0.1.3`).
+Requires [`heatmiser-neohub`](https://pypi.org/project/heatmiser-neohub/) **1.0.0 or newer**
+(declared as `heatmiser-neohub>=1.0.0`).
 
 ```bash
 pip install .
@@ -49,7 +49,7 @@ heatmiser-exporter
 
 Image: [`hypercat42/heatmiser-exporter`](https://hub.docker.com/r/hypercat42/heatmiser-exporter)
 (`linux/amd64`, `linux/arm64`). Built from this repo; `heatmiser-neohub` comes
-from PyPI (`>=0.1.3`). The image defines a Docker `HEALTHCHECK` against
+from PyPI (`>=1.0.0`). The image defines a Docker `HEALTHCHECK` against
 `http://127.0.0.1:9780/healthz` (liveness only; does not scrape the hub).
 
 ```bash

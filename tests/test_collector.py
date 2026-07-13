@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from heatmiser_neohub.models import Device
+import pytest
+
+from heatmiser_neohub.models import Device, LiveData
 from heatmiser_exporter.collector import NeoHubCollector
 
 
@@ -165,6 +167,60 @@ def test_zone_metrics_emit_extended_live_fields() -> None:
     )
 
 
+EXPECTED_METRIC_FAMILIES = frozenset(
+    {
+        "neohub_up",
+        "neohub_scrapes_total",
+        "neohub_scrape_errors_total",
+        "neohub_hub_time",
+        "neohub_hub_away",
+        "neohub_hub_holiday",
+        "neohub_temperature_celsius",
+        "neohub_setpoint_celsius",
+        "neohub_cool_setpoint_celsius",
+        "neohub_heat_on",
+        "neohub_cool_on",
+        "neohub_standby",
+        "neohub_away",
+        "neohub_holiday",
+        "neohub_offline",
+        "neohub_low_battery",
+        "neohub_lock",
+        "neohub_window_open",
+        "neohub_hold_on",
+        "neohub_hold_temperature_celsius",
+        "neohub_timer_on",
+        "neohub_floor_temperature_celsius",
+        "neohub_floor_limit",
+        "neohub_active_profile",
+        "neohub_active_level",
+        "neohub_relative_humidity_percent",
+        "neohub_preheat_active",
+        "neohub_modulation_level",
+        "neohub_hc_mode_info",
+        "neohub_fan_speed_info",
+        "neohub_fan_control_info",
+    }
+)
+
+
+def test_collect_metric_family_names_stable(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Golden list of metric family names for the 1.0 freeze."""
+    collector = NeoHubCollector(host="127.0.0.1", token="t", timeout=1.0)
+
+    async def fake_scrape() -> LiveData:
+        return LiveData.from_dict(
+            {
+                "HUB_TIME": 1,
+                "devices": [{"ZONE_NAME": "Z", "DEVICE_ID": 1, "AVAILABLE_MODES": ["heat"]}],
+            }
+        )
+
+    monkeypatch.setattr(collector, "_scrape", fake_scrape)
+    names = {m.name for m in collector.collect()}
+    assert names == EXPECTED_METRIC_FAMILIES
+
+
 def test_zone_metrics_emit_both_when_modes_unknown() -> None:
     collector = NeoHubCollector(host="127.0.0.1", token="x")
     device = Device.from_dict(
@@ -177,7 +233,7 @@ def test_zone_metrics_emit_both_when_modes_unknown() -> None:
             "COOL_ON": False,
         }
     )
-    assert getattr(device, "available_modes", None) is None
+    assert device.available_modes is None
 
     metrics = list(collector._zone_metrics([device]))
     names = {m.name: m for m in metrics}

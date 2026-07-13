@@ -20,7 +20,7 @@ Published docs (GitHub Pages):
 
 ```bash
 pip install .
-# pulls heatmiser-neohub>=0.1.3 from PyPI automatically
+# pulls heatmiser-neohub>=1.0.0 from PyPI automatically
 ```
 
 For local development against a sibling checkout of `heatmiser-neohub`, use
@@ -42,7 +42,7 @@ pip install -e ".[dev]"
 
 Multi-arch image (`linux/amd64`, `linux/arm64`) on Docker Hub as
 [`hypercat42/heatmiser-exporter`](https://hub.docker.com/r/hypercat42/heatmiser-exporter).
-The image is built from this repository; `heatmiser-neohub>=0.1.3` is installed from
+The image is built from this repository; `heatmiser-neohub>=1.0.0` is installed from
 PyPI. A Docker `HEALTHCHECK` probes `/healthz` on port `9780` (process
 liveness; does not scrape the hub).
 
@@ -95,7 +95,7 @@ scrape_configs:
 | Metric                            | Type  | Labels               | Description                                    |
 | --------------------------------- | ----- | -------------------- | ---------------------------------------------- |
 | `neohub_up`                       | gauge |                      | Last scrape succeeded (1) or failed (0)        |
-| `neohub_scrape_success`           | gauge |                      | Cumulative successful scrapes                  |
+| `neohub_scrapes_total`            | gauge |                      | Cumulative successful scrapes                  |
 | `neohub_scrape_errors_total`      | gauge |                      | Cumulative failed scrapes                      |
 | `neohub_hub_time`                 | gauge |                      | Hub clock (unix epoch seconds)                 |
 | `neohub_hub_away`                 | gauge |                      | Hub away mode                                  |

@@ -36,11 +36,14 @@ def test_collect_success_sets_ready(monkeypatch: pytest.MonkeyPatch) -> None:
     metrics = list(collector.collect())
     names = {m.name for m in metrics}
     assert "neohub_up" in names
+    assert "neohub_scrapes_total" in names
     assert "neohub_temperature_celsius" in names
     assert collector.is_ready is True
     assert collector.last_scrape_ok is True
     up = next(m for m in metrics if m.name == "neohub_up")
     assert any(s.value == 1.0 for s in up.samples if s.name == "neohub_up")
+    scrapes = next(m for m in metrics if m.name == "neohub_scrapes_total")
+    assert any(s.value == 1.0 for s in scrapes.samples if s.name == "neohub_scrapes_total")
 
 
 def test_collect_failure_marks_not_ready(monkeypatch: pytest.MonkeyPatch) -> None:

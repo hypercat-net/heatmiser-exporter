@@ -6,7 +6,7 @@ All metrics are gauges. Zone metrics carry `zone` and `device_id` labels
 | Metric | Labels | Description |
 | ------ | ------ | ----------- |
 | `neohub_up` | | Last scrape succeeded (`1`) or failed (`0`) |
-| `neohub_scrape_success` | | Cumulative successful scrapes |
+| `neohub_scrapes_total` | | Cumulative successful scrapes |
 | `neohub_scrape_errors_total` | | Cumulative failed scrapes |
 | `neohub_hub_time` | | Hub clock (unix epoch seconds) |
 | `neohub_hub_away` | | Hub away mode |
@@ -37,7 +37,7 @@ All metrics are gauges. Zone metrics carry `zone` and `device_id` labels
 | `neohub_fan_speed_info` | `zone`, `device_id`, `speed` | Fan speed (`1` for the reported setting) |
 | `neohub_fan_control_info` | `zone`, `device_id`, `control` | Fan control (`1` for the reported setting) |
 
-On scrape failure, only `neohub_up`, `neohub_scrape_success`, and
+On scrape failure, only `neohub_up`, `neohub_scrapes_total`, and
 `neohub_scrape_errors_total` are emitted for that request.
 
 Heat and cool series are omitted per zone when the hub's `AVAILABLE_MODES`

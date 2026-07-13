@@ -38,7 +38,7 @@ class NeoHubCollector:
         self._token = token
         self._port = port
         self._timeout = timeout
-        self._scrape_success_total = 0
+        self._scrapes_total = 0
         self._scrape_errors_total = 0
         # None until the first /metrics scrape; then True/False for last result.
         self._last_scrape_ok: bool | None = None
@@ -70,8 +70,8 @@ class NeoHubCollector:
             "neohub_up",
             "Whether the last scrape of the NeoHub succeeded (1) or failed (0).",
         )
-        scrape_success = GaugeMetricFamily(
-            "neohub_scrape_success",
+        scrapes = GaugeMetricFamily(
+            "neohub_scrapes_total",
             "Cumulative count of successful NeoHub scrapes.",
         )
         scrape_errors = GaugeMetricFamily(
@@ -86,20 +86,20 @@ class NeoHubCollector:
             self._scrape_errors_total += 1
             self._last_scrape_ok = False
             up.add_metric([], 0)
-            scrape_success.add_metric([], self._scrape_success_total)
+            scrapes.add_metric([], self._scrapes_total)
             scrape_errors.add_metric([], self._scrape_errors_total)
             yield up
-            yield scrape_success
+            yield scrapes
             yield scrape_errors
             return
 
-        self._scrape_success_total += 1
+        self._scrapes_total += 1
         self._last_scrape_ok = True
         up.add_metric([], 1)
-        scrape_success.add_metric([], self._scrape_success_total)
+        scrapes.add_metric([], self._scrapes_total)
         scrape_errors.add_metric([], self._scrape_errors_total)
         yield up
-        yield scrape_success
+        yield scrapes
         yield scrape_errors
 
         yield from self._hub_metrics(live_data)
@@ -340,20 +340,10 @@ class NeoHubCollector:
     def _supports_mode(device: Device, mode: str) -> bool:
         """Whether to export metrics for ``mode`` (``heat`` / ``cool``).
 
-        Prefers :meth:`Device.supports_mode` when available; otherwise inspects
-        ``AVAILABLE_MODES`` on ``device.raw``. Missing capability data keeps
-        previous behaviour (emit the series).
+        Uses :meth:`Device.supports_mode`. When capability data is missing,
+        both heat and cool series are still emitted.
         """
-        supports = getattr(device, "supports_mode", None)
-        if callable(supports):
-            return bool(supports(mode))
-        raw = device.raw or {}
-        if "AVAILABLE_MODES" not in raw:
-            return True
-        modes = raw.get("AVAILABLE_MODES")
-        if not isinstance(modes, list):
-            return True
-        return mode.casefold() in {str(item).casefold() for item in modes}
+        return device.supports_mode(mode)
 
     @staticmethod
     def _device_flag(device: Device, attr: str, raw_key: str) -> bool:
