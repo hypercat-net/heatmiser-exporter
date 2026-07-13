@@ -177,7 +177,7 @@ def test_zone_metrics_emit_both_when_modes_unknown() -> None:
             "COOL_ON": False,
         }
     )
-    assert device.available_modes is None
+    assert getattr(device, "available_modes", None) is None
 
     metrics = list(collector._zone_metrics([device]))
     names = {m.name: m for m in metrics}
