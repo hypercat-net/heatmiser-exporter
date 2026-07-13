@@ -20,7 +20,7 @@ Published docs (GitHub Pages):
 
 ```bash
 pip install .
-# pulls heatmiser-neohub from PyPI automatically
+# pulls heatmiser-neohub>=0.1.3 from PyPI automatically
 ```
 
 For local development against a sibling checkout of `heatmiser-neohub`, use
@@ -42,19 +42,21 @@ pip install -e ".[dev]"
 
 Multi-arch image (`linux/amd64`, `linux/arm64`) on Docker Hub as
 [`hypercat42/heatmiser-exporter`](https://hub.docker.com/r/hypercat42/heatmiser-exporter).
-The image is built from this repository; `heatmiser-neohub` is installed from
-PyPI as a dependency.
+The image is built from this repository; `heatmiser-neohub>=0.1.3` is installed from
+PyPI. A Docker `HEALTHCHECK` probes `/healthz` on port `9780` (process
+liveness; does not scrape the hub).
 
 ```bash
 cp .env.example .env   # set NEOHUB_HOST and NEOHUB_TOKEN
 
 docker run --rm -p 9780:9780 --env-file .env hypercat42/heatmiser-exporter
 
-# or Compose
+# or Compose (pulls the Hub image; no local build)
 docker compose up -d
 ```
 
-Then scrape `http://localhost:9780/metrics`.
+Then scrape `http://localhost:9780/metrics`. Liveness: `/healthz`. Readiness
+(last scrape): `/readyz`.
 
 ## Configuration
 
@@ -99,19 +101,35 @@ scrape_configs:
 | `neohub_hub_away`                 | gauge |                      | Hub away mode                                  |
 | `neohub_hub_holiday`              | gauge |                      | Hub holiday mode                               |
 | `neohub_temperature_celsius`      | gauge | `zone`, `device_id`  | Measured zone temperature                      |
-| `neohub_setpoint_celsius`         | gauge | `zone`, `device_id`  | Heating setpoint                               |
-| `neohub_cool_setpoint_celsius`    | gauge | `zone`, `device_id`  | Cooling setpoint                               |
-| `neohub_heat_on`                  | gauge | `zone`, `device_id`  | Zone actively heating                          |
-| `neohub_cool_on`                  | gauge | `zone`, `device_id`  | Zone actively cooling                          |
+| `neohub_setpoint_celsius`         | gauge | `zone`, `device_id`  | Heating setpoint (`AVAILABLE_MODES` includes `heat`) |
+| `neohub_cool_setpoint_celsius`    | gauge | `zone`, `device_id`  | Cooling setpoint (`AVAILABLE_MODES` includes `cool`) |
+| `neohub_heat_on`                  | gauge | `zone`, `device_id`  | Zone actively heating (when `heat` is available)    |
+| `neohub_cool_on`                  | gauge | `zone`, `device_id`  | Zone actively cooling (when `cool` is available)    |
 | `neohub_standby`                  | gauge | `zone`, `device_id`  | Zone in standby                                |
 | `neohub_away`                     | gauge | `zone`, `device_id`  | Zone away mode                                 |
+| `neohub_holiday`                  | gauge | `zone`, `device_id`  | Zone holiday mode                              |
 | `neohub_offline`                  | gauge | `zone`, `device_id`  | Zone/device offline                            |
 | `neohub_low_battery`              | gauge | `zone`, `device_id`  | Low battery                                    |
+| `neohub_lock`                     | gauge | `zone`, `device_id`  | Zone controls locked                           |
 | `neohub_window_open`              | gauge | `zone`, `device_id`  | Window-open detection active                   |
 | `neohub_hold_on`                  | gauge | `zone`, `device_id`  | Temporary hold active                          |
+| `neohub_hold_temperature_celsius` | gauge | `zone`, `device_id`  | Hold setpoint                                  |
 | `neohub_timer_on`                 | gauge | `zone`, `device_id`  | Timer/schedule active                          |
 | `neohub_floor_temperature_celsius`| gauge | `zone`, `device_id`  | Floor temperature (if fitted)                  |
+| `neohub_floor_limit`              | gauge | `zone`, `device_id`  | Floor temperature limit active                 |
 | `neohub_active_profile`           | gauge | `zone`, `device_id`  | Active schedule profile index                  |
+| `neohub_active_level`             | gauge | `zone`, `device_id`  | Active comfort level index                     |
+| `neohub_relative_humidity_percent`| gauge | `zone`, `device_id`  | Relative humidity percent (when reported)      |
+| `neohub_preheat_active`           | gauge | `zone`, `device_id`  | Preheat active                                 |
+| `neohub_modulation_level`         | gauge | `zone`, `device_id`  | Modulation level                               |
+| `neohub_hc_mode_info`             | gauge | `zone`, `device_id`, `mode` | HC mode (`1` for reported mode)       |
+| `neohub_fan_speed_info`           | gauge | `zone`, `device_id`, `speed` | Fan speed (`1` for reported setting) |
+| `neohub_fan_control_info`         | gauge | `zone`, `device_id`, `control` | Fan control (`1` for reported setting) |
+
+Heat/cool series are omitted per zone when `AVAILABLE_MODES` does not list that
+mode. If the hub omits `AVAILABLE_MODES`, both heat and cool series are still
+emitted. See [Metrics](https://hypercat-net.github.io/heatmiser-exporter/guide/metrics/)
+for details.
 
 ## Related links
 
@@ -124,7 +142,7 @@ scrape_configs:
 
 ```bash
 pip install -e ".[dev]"
-pytest
+pytest   # includes coverage; fail_under is configured in pyproject.toml
 ```
 
 ## License

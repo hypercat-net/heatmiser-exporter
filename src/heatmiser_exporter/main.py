@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import logging
+import threading
 import time
-from typing import Optional
+from socketserver import ThreadingMixIn
+from typing import Callable, Iterable, Optional
+from wsgiref.simple_server import WSGIServer, make_server
 
 import typer
 from dotenv import load_dotenv
-from prometheus_client import REGISTRY, start_http_server
+from prometheus_client import REGISTRY, make_wsgi_app
 
 from heatmiser_exporter.collector import NeoHubCollector
 
@@ -23,6 +26,70 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
 )
 logger = logging.getLogger("heatmiser_exporter")
+
+StartResponse = Callable[..., None]
+WsgiApp = Callable[[dict, StartResponse], Iterable[bytes]]
+
+
+class _ThreadingWSGIServer(ThreadingMixIn, WSGIServer):
+    daemon_threads = True
+
+
+def make_exporter_app(
+    registry=REGISTRY,
+    *,
+    collector: NeoHubCollector | None = None,
+) -> WsgiApp:
+    """WSGI app for ``/metrics``, ``/healthz``, and ``/readyz``.
+
+    ``/healthz`` is process liveness. ``/readyz`` reflects the last NeoHub
+    scrape (503 until the first successful scrape, or after a failed one).
+    """
+    metrics_app = make_wsgi_app(registry)
+
+    def application(environ: dict, start_response: StartResponse) -> Iterable[bytes]:
+        path = environ.get("PATH_INFO", "")
+        if path == "/healthz":
+            start_response(
+                "200 OK",
+                [("Content-Type", "text/plain; charset=utf-8")],
+            )
+            return [b"ok\n"]
+        if path == "/readyz":
+            if collector is not None and collector.is_ready:
+                start_response(
+                    "200 OK",
+                    [("Content-Type", "text/plain; charset=utf-8")],
+                )
+                return [b"ok\n"]
+            start_response(
+                "503 Service Unavailable",
+                [("Content-Type", "text/plain; charset=utf-8")],
+            )
+            if collector is None or collector.last_scrape_ok is None:
+                return [b"not ready\n"]
+            return [b"unavailable\n"]
+        return metrics_app(environ, start_response)
+
+    return application
+
+
+def start_exporter_server(
+    port: int,
+    addr: str = "0.0.0.0",
+    registry=REGISTRY,
+    *,
+    collector: NeoHubCollector | None = None,
+) -> None:
+    """Serve metrics, healthz, and readyz on a background thread."""
+    httpd = make_server(
+        addr,
+        port,
+        make_exporter_app(registry, collector=collector),
+        _ThreadingWSGIServer,
+    )
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
 
 
 @app.command()
@@ -79,9 +146,9 @@ def serve(
     )
     REGISTRY.register(collector)
 
-    start_http_server(listen_port, addr=listen_address)
+    start_exporter_server(listen_port, addr=listen_address, collector=collector)
     logger.info(
-        "Serving NeoHub metrics on %s:%d (scraping %s:%d)",
+        "Serving on %s:%d (/metrics, /healthz, /readyz); scraping %s:%d",
         listen_address,
         listen_port,
         neohub_host,

@@ -8,7 +8,7 @@ services:
     restart: unless-stopped
     env_file: .env
     ports:
-      - "9780:9780" # metrics: http://localhost:9780/metrics
+      - "9780:9780" # /metrics, /healthz, /readyz
     # Prefer bridge networking + explicit NEOHUB_HOST.
     # Use host networking only if you later rely on LAN UDP discovery:
     # network_mode: host

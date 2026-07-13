@@ -21,6 +21,7 @@ dependencies = [
 dev = [
     "pytest>=9.0",
     "pytest-asyncio>=1.0",
+    "pytest-cov>=6.0",
 ]
 
 [project.scripts]
@@ -46,3 +47,17 @@ include = [
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+addopts = [
+    "--cov",
+    "--cov-report=term-missing",
+]
+
+[tool.coverage.run]
+source_pkgs = ["heatmiser_exporter"]
+branch = false
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+fail_under = 85
+omit = ["*/tests/*"]

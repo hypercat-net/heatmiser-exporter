@@ -25,6 +25,9 @@ pip install -e ".[dev]"
 pytest
 ```
 
+`pytest` runs with coverage enabled (`pytest-cov`). The suite must stay at or
+above the `fail_under` threshold in `pyproject.toml` (currently 85%).
+
 ## Pull requests
 
 - Keep changes focused and describe *why* in the PR body.

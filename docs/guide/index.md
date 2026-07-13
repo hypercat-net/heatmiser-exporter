@@ -6,6 +6,8 @@ built on [`heatmiser-neohub`](https://github.com/hypercat-net/heatmiser-neohub).
 On every scrape of `/metrics`, the exporter opens a fresh WebSocket connection
 to the hub, runs `GET_LIVE_DATA`, and exposes hub- and zone-level gauges.
 There is no background poller: Prometheus drives the refresh rate.
+`/healthz` is a process liveness probe (`ok`) and does not contact the hub.
+`/readyz` is readiness based on the last NeoHub scrape (see [Metrics](metrics.html)).
 
 ## Guides
 
@@ -17,6 +19,8 @@ There is no background poller: Prometheus drives the refresh rate.
 ```bash
 cp .env.example .env   # set NEOHUB_HOST and NEOHUB_TOKEN
 docker compose up -d
+curl -s http://localhost:9780/healthz
+curl -s http://localhost:9780/readyz
 curl -s http://localhost:9780/metrics | head
 ```
 
