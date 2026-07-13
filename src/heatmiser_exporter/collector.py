@@ -111,20 +111,20 @@ class NeoHubCollector:
         )
         if live_data.hub_time is not None:
             hub_time.add_metric([], float(live_data.hub_time))
-        yield hub_time
+        yield from self._nonempty(hub_time)
 
         hub_away = GaugeMetricFamily(
             "neohub_hub_away", "Whether the hub is in away mode (1) or not (0)."
         )
         hub_away.add_metric([], 1 if live_data.hub_away else 0)
-        yield hub_away
+        yield from self._nonempty(hub_away)
 
         hub_holiday = GaugeMetricFamily(
             "neohub_hub_holiday",
             "Whether the hub is in holiday mode (1) or not (0).",
         )
         hub_holiday.add_metric([], 1 if live_data.hub_holiday else 0)
-        yield hub_holiday
+        yield from self._nonempty(hub_holiday)
 
     def _zone_metrics(self, devices: list[Device]) -> Iterable[Metric]:
         temperature = GaugeMetricFamily(
@@ -310,31 +310,40 @@ class NeoHubCollector:
             if control:
                 fan_control.add_metric([*labels, control], 1)
 
-        yield temperature
-        yield setpoint
-        yield cool_setpoint
-        yield heat_on
-        yield cool_on
-        yield standby
-        yield away
-        yield holiday
-        yield offline
-        yield low_battery
-        yield lock
-        yield window_open
-        yield hold_on
-        yield hold_temp
-        yield timer_on
-        yield floor_temperature
-        yield floor_limit
-        yield active_profile
-        yield active_level
-        yield relative_humidity
-        yield preheat_active
-        yield modulation_level
-        yield hc_mode
-        yield fan_speed
-        yield fan_control
+        for family in (
+            temperature,
+            setpoint,
+            cool_setpoint,
+            heat_on,
+            cool_on,
+            standby,
+            away,
+            holiday,
+            offline,
+            low_battery,
+            lock,
+            window_open,
+            hold_on,
+            hold_temp,
+            timer_on,
+            floor_temperature,
+            floor_limit,
+            active_profile,
+            active_level,
+            relative_humidity,
+            preheat_active,
+            modulation_level,
+            hc_mode,
+            fan_speed,
+            fan_control,
+        ):
+            yield from self._nonempty(family)
+
+    @staticmethod
+    def _nonempty(metric: Metric) -> Iterable[Metric]:
+        """Yield ``metric`` only when it has at least one sample."""
+        if metric.samples:
+            yield metric
 
     @staticmethod
     def _supports_mode(device: Device, mode: str) -> bool:

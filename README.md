@@ -128,7 +128,16 @@ scrape_configs:
 
 Heat/cool series are omitted per zone when `AVAILABLE_MODES` does not list that
 mode. If the hub omits `AVAILABLE_MODES`, both heat and cool series are still
-emitted. See [Metrics](https://hypercat-net.github.io/heatmiser-exporter/guide/metrics/)
+emitted. Families with no samples are omitted from the scrape output entirely.
+
+| Metric | heat only | cool only | heat + cool |
+| ------ | --------- | --------- | ----------- |
+| `neohub_setpoint_celsius` | yes | no | yes |
+| `neohub_heat_on` | yes | no | yes |
+| `neohub_cool_setpoint_celsius` | no | yes | yes |
+| `neohub_cool_on` | no | yes | yes |
+
+See [Metrics](https://hypercat-net.github.io/heatmiser-exporter/guide/metrics/)
 for details.
 
 ## Related links

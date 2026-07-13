@@ -41,17 +41,9 @@ def test_zone_metrics_omit_cool_when_heat_only() -> None:
         for s in names["neohub_heat_on"].samples
         if s.name == "neohub_heat_on"
     )
-    # Cool series present as families but with no samples for this zone.
-    assert not [
-        s
-        for s in names["neohub_cool_on"].samples
-        if s.name == "neohub_cool_on"
-    ]
-    assert not [
-        s
-        for s in names["neohub_cool_setpoint_celsius"].samples
-        if s.name == "neohub_cool_setpoint_celsius"
-    ]
+    # Cool families omitted entirely when no samples (heat-only device).
+    assert "neohub_cool_on" not in names
+    assert "neohub_cool_setpoint_celsius" not in names
 
 
 def test_zone_metrics_emit_cool_when_available() -> None:
@@ -167,7 +159,7 @@ def test_zone_metrics_emit_extended_live_fields() -> None:
     )
 
 
-EXPECTED_METRIC_FAMILIES = frozenset(
+KNOWN_METRIC_FAMILIES = frozenset(
     {
         "neohub_up",
         "neohub_scrapes_total",
@@ -204,8 +196,10 @@ EXPECTED_METRIC_FAMILIES = frozenset(
 )
 
 
-def test_collect_metric_family_names_stable(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Golden list of metric family names for the 1.0 freeze."""
+def test_collect_metric_family_names_from_catalogue(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Emitted families must be from the known catalogue; empty ones are omitted."""
     collector = NeoHubCollector(host="127.0.0.1", token="t", timeout=1.0)
 
     async def fake_scrape() -> LiveData:
@@ -218,7 +212,32 @@ def test_collect_metric_family_names_stable(monkeypatch: pytest.MonkeyPatch) -> 
 
     monkeypatch.setattr(collector, "_scrape", fake_scrape)
     names = {m.name for m in collector.collect()}
-    assert names == EXPECTED_METRIC_FAMILIES
+    assert names <= KNOWN_METRIC_FAMILIES
+    assert "neohub_cool_setpoint_celsius" not in names
+    assert "neohub_cool_on" not in names
+    assert "neohub_up" in names
+    assert "neohub_heat_on" in names
+
+
+def test_zone_metrics_omit_heat_when_cool_only() -> None:
+    collector = NeoHubCollector(host="127.0.0.1", token="x")
+    cool_only = Device.from_dict(
+        {
+            "ZONE_NAME": "Server",
+            "DEVICE_ID": 9,
+            "SET_TEMP": "20.0",
+            "COOL_TEMP": "18.0",
+            "HEAT_ON": False,
+            "COOL_ON": True,
+            "AVAILABLE_MODES": ["cool"],
+        }
+    )
+
+    names = {m.name for m in collector._zone_metrics([cool_only])}
+    assert "neohub_cool_on" in names
+    assert "neohub_cool_setpoint_celsius" in names
+    assert "neohub_heat_on" not in names
+    assert "neohub_setpoint_celsius" not in names
 
 
 def test_zone_metrics_emit_both_when_modes_unknown() -> None:

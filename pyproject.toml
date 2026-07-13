@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "heatmiser-exporter"
-version = "1.0.0"
+version = "1.0.1"
 description = "Prometheus exporter for the IMI Heatmiser NeoHub API"
 readme = "README.md"
 requires-python = ">=3.11"

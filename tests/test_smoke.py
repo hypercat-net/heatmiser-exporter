@@ -19,7 +19,7 @@ def _invoke(wsgi, path: str) -> tuple[str, bytes]:
 
 
 def test_version() -> None:
-    assert __version__ == "1.0.0"
+    assert __version__ == "1.0.1"
 
 
 def test_collector_constructs() -> None:

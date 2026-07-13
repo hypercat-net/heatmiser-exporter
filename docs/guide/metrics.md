@@ -40,10 +40,22 @@ All metrics are gauges. Zone metrics carry `zone` and `device_id` labels
 On scrape failure, only `neohub_up`, `neohub_scrapes_total`, and
 `neohub_scrape_errors_total` are emitted for that request.
 
+### `AVAILABLE_MODES` gating
+
 Heat and cool series are omitted per zone when the hub's `AVAILABLE_MODES`
-list does not include that mode (for example heat-only thermostats skip
-cool metrics). If `AVAILABLE_MODES` is missing, both heat and cool series
-are still emitted.
+list does not include that mode. If `AVAILABLE_MODES` is missing, both heat
+and cool series are still emitted.
+
+| Metric | heat only | cool only | heat + cool |
+| ------ | --------- | --------- | ----------- |
+| `neohub_setpoint_celsius` | yes | no | yes |
+| `neohub_heat_on` | yes | no | yes |
+| `neohub_cool_setpoint_celsius` | no | yes | yes |
+| `neohub_cool_on` | no | yes | yes |
+
+Metric families with no samples on a scrape are not exported at all (no
+`# HELP` / `# TYPE` lines), so a heat-only install will not show cool
+families until a cool-capable zone appears.
 
 ## HTTP endpoints
 
