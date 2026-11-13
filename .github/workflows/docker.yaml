@@ -63,6 +63,23 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Prepare Docker Hub description
+        if: github.event_name != 'pull_request'
+        run: |
+          awk '
+            /^## (Installation|Development)$/ { in_excluded_section = 1; next }
+            in_excluded_section && /^### Docker$/ {
+              print "## Docker"
+              in_excluded_section = 0
+              found_docker = 1
+              next
+            }
+            in_excluded_section && /^## / { in_excluded_section = 0 }
+            in_excluded_section { next }
+            { print }
+            END { if (!found_docker) exit 1 }
+          ' README.md > "$RUNNER_TEMP/dockerhub-readme.md"
+
       - name: Update Docker Hub description
         if: github.event_name != 'pull_request'
         uses: peter-evans/dockerhub-description@v4
@@ -70,5 +87,5 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: hypercat42/heatmiser-exporter
-          readme-filepath: ./README.md
+          readme-filepath: ${{ runner.temp }}/dockerhub-readme.md
           short-description: Prometheus exporter for the IMI Heatmiser NeoHub, built on heatmiser-neohub.
