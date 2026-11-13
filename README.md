@@ -20,7 +20,7 @@ Published docs (GitHub Pages):
 
 ```bash
 pip install .
-# pulls heatmiser-neohub>=1.0.0 from PyPI automatically
+# pulls heatmiser-neohub>=2.0.0 from PyPI automatically
 ```
 
 For local development against a sibling checkout of `heatmiser-neohub`, use
@@ -42,7 +42,7 @@ pip install -e ".[dev]"
 
 Multi-arch image (`linux/amd64`, `linux/arm64`) on Docker Hub as
 [`hypercat42/heatmiser-exporter`](https://hub.docker.com/r/hypercat42/heatmiser-exporter).
-The image is built from this repository; `heatmiser-neohub>=1.0.0` is installed from
+The image is built from this repository; `heatmiser-neohub>=2.0.0` is installed from
 PyPI. A Docker `HEALTHCHECK` probes `/healthz` on port `9780` (process
 liveness; does not scrape the hub).
 

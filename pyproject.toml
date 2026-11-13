@@ -11,7 +11,7 @@ requires-python = ">=3.11"
 license = "MIT"
 authors = [{ name = "Hypercat", email = "github@hypercat.net" }]
 dependencies = [
-    "heatmiser-neohub>=1.0.0",
+    "heatmiser-neohub>=2.0.0",
     "prometheus_client>=0.25.0",
     "python-dotenv>=1.2.0",
     "typer>=0.26.0",
